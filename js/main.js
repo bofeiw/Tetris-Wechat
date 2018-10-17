@@ -1,11 +1,12 @@
 import Square from './res/square'
 
 let ctx = canvas.getContext('2d')
-const xNum = 10 // number of squares in x
-const yNum = 17 // number of squares in y
-const spaceSquareRatio = 7 // ratio for size of space and square
+const xNum = 9 // number of squares in x
+const yNum = 16 // number of squares in y
+const spaceSquareRatio = 8 // ratio for size of space and square
 const spaceSize = getSpaceSize()  // space size
 const squareSize = spaceSize * spaceSquareRatio // square size
+const squareHeightSum = getSaureHeightSum() // sum height in y
 const offsetY = getOffsetY()  // center the squares
 
 const time_drop = 0.8  // period to force drop
@@ -43,43 +44,91 @@ export default class Main {
     this.squares = []
     this.fillBackground()
     this.initSquares()
-    this.activeX = 0
-    this.activeY = 0
-    this.activeColor = colors.cyan
     this.start()
   }
 
   start() {
-    // this.renderActive()
+    this.activeX = Math.floor(xNum / 2)
+    this.activeY = 0
+    this.activeColor = colors.red
+    this.render()
     setInterval(this.down.bind(this), 500)
   }
 
-  down(){
-    this.activeY += 1
-    this.renderActive()
+  down() {
+    this.clearActive()
+    this.move(0, 1)
+    this.addActive()
+    this.render()
   }
 
-  renderActive() {
-    this.squares[this.activeY][this.activeX].color = this.activeColor
-    this.squares[this.activeY][this.activeX].render(ctx)
+  /**
+   * moves the squre by distance x, y
+   */
+  move(x, y) {
+    var newX = this.activeX + x
+    var newY = this.activeY + y
+    if (this.validPosition(newX, newY)){
+      this.activeX = newX
+      this.activeY = newY
+    }
+  }
 
+  /**
+   * validate position with active shape
+   */
+  validPosition(x, y){
+    // validate it is in screen
+    if (! (0 <= x && x < xNum && 0 <= y && y < yNum)){
+      return false
+    }
+    if (this.squares[y][x].color != colors.none){
+      return false
+    }
+    return true
+  }
+
+  render(){
+    this.fillBackground()
+    this.renderSquares()
+  }
+
+  renderSquares() {
+    for (let y = 0; y < yNum; y++) {
+      for (let x = 0; x < xNum; x++) {
+        this.squares[y][x].render(ctx)
+      }
+    }
+  }
+
+  addActive() {
+    this.squares[this.activeY][this.activeX].color = this.activeColor
+  }
+
+  clearActive() {
+    this.squares[this.activeY][this.activeX].color = colors.none
   }
 
   initSquares(){
-    for (var y = 0; y < yNum; y++) {
+    for (let y = 0; y < yNum; y++) {
       var row = []
-      for (var x = 0; x < xNum; x++){
-        var square = new Square(x, y, colors.none, squareSize, spaceSize, offsetY)
-        square.render(ctx)
-        row.push(square)
+      for (let x = 0; x < xNum; x++){
+        row.push(new Square(x, y, colors.none, squareSize, spaceSize, offsetY))
       }
       this.squares.push(row)
     }
   }
 
   fillBackground (){
+    // fill whole bg 
     ctx.beginPath()
     ctx.rect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = colors.black
+    ctx.fill();
+    ctx.closePath()
+    // fill space
+    ctx.beginPath()
+    ctx.rect(0, offsetY, canvas.width, squareHeightSum);
     ctx.fillStyle = colors.space
     ctx.fill();
     ctx.closePath()
@@ -93,10 +142,14 @@ function getSpaceSize(){
   return spaceSize
 }
 
-function getOffsetY(){
+function getSaureHeightSum() {
   const spaceBetween = yNum - 1
   const numSpaces = yNum * spaceSquareRatio + spaceBetween
   const spaceLengthTotal = numSpaces * spaceSize
-  const offsetY = (canvas.height - spaceLengthTotal) / 2
+  return spaceLengthTotal
+}
+
+function getOffsetY(){
+  const offsetY = (canvas.height - squareHeightSum) / 2
   return offsetY
 }
