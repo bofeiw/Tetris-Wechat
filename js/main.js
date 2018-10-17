@@ -43,7 +43,6 @@ const ctx = canvas.getContext('2d')
 export default class Main {
   constructor() {
     this.activeColor = colors.red
-    this.start()
   }
 
   start() {
@@ -66,7 +65,7 @@ export default class Main {
       this.gameOver()
       return
     }
-    this.intervalID = setInterval(this.down.bind(this), 10)
+    this.intervalID = setInterval(this.down.bind(this), 100)
   }
 
   /**
@@ -76,13 +75,14 @@ export default class Main {
     var that = this
     this.isLooping = false
     console.log("lose")
+    // show a dialog box to ask if to play again
     wx.showModal({
       title: 'Game Over',
       content: 'Are you a loser?',
       cancelText: 'Sure',
       cancelColor: '#ff0000',
-      confirmText: 'Sure NOT',
-      confirmColor: '00ff00',
+      confirmText: 'No',
+      // confirmColor: '00ff00',
       success: function (res) {
         if (res.confirm) {
           that.start()
