@@ -1,6 +1,5 @@
 import Square from './res/square'
 
-let ctx = canvas.getContext('2d')
 const xNum = 9 // number of squares in x
 const yNum = 16 // number of squares in y
 const spaceSquareRatio = 8 // ratio for size of space and square
@@ -36,11 +35,14 @@ const colors = {
   space: 'rgba(25, 25, 25, 1)'  // slightly lighter than bg
 }
 
+const ctx = canvas.getContext('2d')
+
 /**
  * 游戏主函数
  */
 export default class Main {
   constructor() {
+    this.activeColor = colors.red
     this.squares = []
     this.fillBackground()
     this.initSquares()
@@ -48,18 +50,46 @@ export default class Main {
   }
 
   start() {
+    this.render()
+    this.resetActive()
+  }
+  
+  resetActive() {
+    clearInterval(this.intervalID)
     this.activeX = Math.floor(xNum / 2)
     this.activeY = 0
-    this.activeColor = colors.red
-    this.render()
-    setInterval(this.down.bind(this), 500)
-  }
-
-  down() {
-    this.clearActive()
-    this.move(0, 1)
+    if (this.shouldStop()){
+      console.log("lose")
+      wx.showModal({
+        title: 'You lose!',
+        content: 'This is content',
+      })
+    }
     this.addActive()
     this.render()
+    this.intervalID = setInterval(this.down.bind(this), 10)
+  }
+
+  /**
+   * moves down
+   */
+  down() {
+    this.move(0, 1)
+  }
+
+  /**
+   * proceed to stop
+   */
+  stop(){
+    this.commitActive()
+    this.resetActive()
+  }
+
+  /**
+   * return whether should stop
+   */
+  shouldStop() {
+    return !this.validPosition(this.activeX, this.activeY + 1)
   }
 
   /**
@@ -68,9 +98,15 @@ export default class Main {
   move(x, y) {
     var newX = this.activeX + x
     var newY = this.activeY + y
-    if (this.validPosition(newX, newY)){
+    if (this.validPosition(newX, newY)) {
+      this.clearActive()
       this.activeX = newX
       this.activeY = newY
+      this.addActive()
+      this.render()
+    }
+    if (this.shouldStop()){
+      this.stop()
     }
   }
 
@@ -82,17 +118,24 @@ export default class Main {
     if (! (0 <= x && x < xNum && 0 <= y && y < yNum)){
       return false
     }
+    // validate square occupation
     if (this.squares[y][x].color != colors.none){
       return false
     }
     return true
   }
 
-  render(){
+  /**
+   * render the whole new window
+   */
+  render() {
     this.fillBackground()
     this.renderSquares()
   }
 
+  /**
+   * render all squares
+   */
   renderSquares() {
     for (let y = 0; y < yNum; y++) {
       for (let x = 0; x < xNum; x++) {
@@ -101,12 +144,25 @@ export default class Main {
     }
   }
 
+  /**
+   * add active square to squares
+   */
   addActive() {
     this.squares[this.activeY][this.activeX].color = this.activeColor
   }
 
+  /**
+   * remove active square from squares
+   */
   clearActive() {
     this.squares[this.activeY][this.activeX].color = colors.none
+  }
+
+  /**
+   * commit active square into squares
+   */
+  commitActive() {
+    this.squares[this.activeY][this.activeX].color = colors.square
   }
 
   initSquares(){
