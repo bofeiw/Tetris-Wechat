@@ -43,31 +43,52 @@ const ctx = canvas.getContext('2d')
 export default class Main {
   constructor() {
     this.activeColor = colors.red
-    this.squares = []
-    this.fillBackground()
-    this.initSquares()
     this.start()
   }
 
   start() {
-    this.render()
-    this.resetActive()
+    this.squares = []
+    this.initSquares()
+    this.isLooping = true
+    if (this.isLooping){
+      this.render()
+      this.resetActive()
+    }
   }
   
   resetActive() {
     clearInterval(this.intervalID)
     this.activeX = Math.floor(xNum / 2)
     this.activeY = 0
-    if (this.shouldStop()){
-      console.log("lose")
-      wx.showModal({
-        title: 'You lose!',
-        content: 'This is content',
-      })
-    }
     this.addActive()
     this.render()
+    if (this.shouldStop()) {
+      this.gameOver()
+      return
+    }
     this.intervalID = setInterval(this.down.bind(this), 10)
+  }
+
+  /**
+   * game over
+   */
+  gameOver() {
+    var that = this
+    this.isLooping = false
+    console.log("lose")
+    wx.showModal({
+      title: 'Game Over',
+      content: 'Are you a loser?',
+      cancelText: 'Sure',
+      cancelColor: '#ff0000',
+      confirmText: 'Sure NOT',
+      confirmColor: '00ff00',
+      success: function (res) {
+        if (res.confirm) {
+          that.start()
+        }
+      }
+    })
   }
 
   /**
