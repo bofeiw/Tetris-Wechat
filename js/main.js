@@ -1,4 +1,5 @@
 import Square from './res/square'
+import SwipeListener from './res/swipes'
 
 const xNum = 9 // number of squares in x
 const yNum = 16 // number of squares in y
@@ -49,6 +50,13 @@ export default class Main {
     this.squares = []
     this.initSquares()
     this.isLooping = true
+    new SwipeListener(
+      this.swipeUp.bind(this),
+      this.swipeDown.bind(this),
+      this.swipeLeft.bind(this),
+      this.swipeRight.bind(this),
+      this.touch.bind(this)
+    )
     if (this.isLooping){
       this.render()
       this.resetActive()
@@ -65,7 +73,7 @@ export default class Main {
       this.gameOver()
       return
     }
-    this.intervalID = setInterval(this.down.bind(this), 100)
+    this.intervalID = setInterval(this.down.bind(this), 500)
   }
 
   /**
@@ -82,13 +90,55 @@ export default class Main {
       cancelText: 'Sure',
       cancelColor: '#ff0000',
       confirmText: 'No',
-      // confirmColor: '00ff00',
+      confirmColor: '#00ff00',
       success: function (res) {
         if (res.confirm) {
           that.start()
         }
       }
     })
+  }
+
+  /**
+   * swipe down
+   */
+  swipeDown(){
+    this.down()
+  }
+
+  /**
+   * swipe up
+   */
+  swipeUp(){
+
+  }
+
+  /**
+   * swipe left
+   */
+  swipeLeft(){
+    this.move(-1, 0)
+  }
+
+  /**
+   * swipe right
+   */
+  swipeRight(){
+    this.move(1, 0)
+  }
+
+  /**
+   * touch
+   */
+  touch(){
+    this.rotate()
+  }
+
+  /**
+   * rotate
+   */
+  rotate(){
+
   }
 
   /**
