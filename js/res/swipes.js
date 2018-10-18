@@ -18,6 +18,7 @@ export default class SwipeListener {
     let t = this;
     /*获取起始坐标和id*/
     wx.onTouchStart(function (e) {
+      this.moved = false
       t.x0 = e.changedTouches[0].clientX
       t.y0 = e.changedTouches[0].clientY
       t.startId = e.changedTouches[0].identifier
@@ -54,13 +55,15 @@ export default class SwipeListener {
       let k = h / w
       /*不使用1判断斜率，而留有余量，防止误触*/
       if (k > 2 || k < -2) {
-        /*滑动50px以上激活，防止误触*/
-        if (h < -50) this.callbackUp() /*向上*/
-        if (h > 50) this.callbackDown() /*向下*/
+        /*滑动40px以上激活，防止误触*/
+        if (h < -40) this.callbackUp() /*向上*/
+        if (h > 40) this.callbackDown() /*向下*/
+        this.isMoved = true
       } else if (k < 0.5 && k > -0.5) {
-        if (w < -50) this.callbackLeft() /*向左*/
-        if (w > 50) this.callbackRight() /*向右*/
-      } else if (isEnd) {
+        if (w < -40) this.callbackLeft() /*向左*/
+        if (w > 40) this.callbackRight() /*向右*/
+        this.isMoved = true
+      } else if (isEnd && !this.isMoved) {
         this.callbackTouch() /*touch*/
       }
     }

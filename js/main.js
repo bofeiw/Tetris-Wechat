@@ -9,13 +9,19 @@ const squareSize = spaceSize * spaceSquareRatio // square size
 const squareHeightSum = getSaureHeightSum() // sum height in y
 const offsetY = getOffsetY()  // center the squares
 
+/**
+ * some constants related to time
+ */
 const timeDropInit = 600 // period to force drop
 const timeDropAdjustFactor = 0.99 // every score up, decrease drop time by this factor
 const timeBeforeStop = 50 // time player can adjust pos at bottom
 const timeMove = 100 // minimum time interval to move
 const timeDrop = 50 // minimum time interval to move
-const timeRotate = 500 // minimum time interval to rotate
+const timeRotate = 1 // minimum time interval to rotate
 
+/**
+ * all the colors used
+ */
 const colors = {
   black: 'rgba(0, 0, 0, 1)',
   white: 'rgba(255, 255, 255, 1)',
@@ -33,6 +39,12 @@ const colors = {
   space: 'rgba(25, 25, 25, 1)'  // slightly lighter than bg
 }
 
+/**
+ * all shapes, each object is a shape data
+ * pos: (y, x) pair relative to center point
+ * color: color of that shape
+ * rotate: rotation limit
+ */
 const shapes = [
   { pos: [[-1, 0], [0, -1], [0, 1]], color: colors.red, rotate: 4 }, // _ | _
   { pos: [[-1, 0], [0, -1], [-1, 1]], color: colors.green, rotate: 2 }, // _ | -
@@ -50,13 +62,13 @@ const ctx = canvas.getContext('2d')
  */
 export default class Main {
   constructor() {
-    this.activeColor = colors.red
+    this.lineCleard = 0
   }
 
   start() {
-    this.squares = []
     this.initSquares()
     this.isLooping = true
+    this.rotateCount = 1
     this.timeDrop = timeDropInit
     this.timeLastDrop = Date.now()
     this.timeLastMove = Date.now()
@@ -170,14 +182,23 @@ export default class Main {
    */
   rotate(){
     var newPos = JSON.parse(JSON.stringify(this.shape)).pos
-    for (let i = 0; i < newPos.length; i++){
-      newPos[i][0] = this.shape.pos[i][1]
-      newPos[i][1] = -this.shape.pos[i][0]
+    if (++this.rotateCount > this.shape.rotate){
+      // rotation exceed limit, roll back to origin
+      newPos = JSON.parse(JSON.stringify(this.shapeOrigin)).pos
+      this.rotateCount = 1
+    } else {
+      // rotate as normal
+      for (let i = 0; i < newPos.length; i++){
+        newPos[i][0] = this.shape.pos[i][1]
+        newPos[i][1] = -this.shape.pos[i][0]
+      }
     }
+    // validate and apply
     if (this.validPosition(this.activeX, this.activeY, newPos)) {
       this.clearActive()
       this.shape.pos = newPos
       this.addActive()
+      this.render()
       if (this.shouldStop()){
         this.stop()
       }
@@ -237,7 +258,8 @@ export default class Main {
           break
         }
       }
-      if (full){
+      if (full) {
+        ++this.lineCleard
         // clear
         for (let xMove = 0; xMove < xNum; xMove++) {
           this.squares[y][xMove].color = colors.none
@@ -249,7 +271,7 @@ export default class Main {
             this.squares[yMove][xMove].color = colors.none
           }
         }
-        y++
+        ++y
       }
     }
   }
@@ -341,7 +363,8 @@ export default class Main {
     }
   }
 
-  initSquares(){
+  initSquares() {
+    this.squares = []
     for (let y = 0; y < yNum; y++) {
       var row = []
       for (let x = 0; x < xNum; x++){
