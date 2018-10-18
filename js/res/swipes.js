@@ -12,6 +12,9 @@ export default class SwipeListener {
     this.callbackLeft = callbackLeft
     this.callbackRight = callbackRight
     this.callbackTouch = callbackTouch
+  }
+
+  start() {
     let t = this;
     /*获取起始坐标和id*/
     wx.onTouchStart(function (e) {
@@ -36,6 +39,13 @@ export default class SwipeListener {
       t._call()
     })
   }
+
+  stop() {
+    wx.offTouchStart()
+    wx.offTouchMove()
+    wx.offTouchEnd()
+  }
+
   _call() {
     /* 判断是否为同一次触摸，若不是则直接忽略*/
     if (this.endId === this.startId) {

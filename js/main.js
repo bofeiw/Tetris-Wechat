@@ -61,17 +61,22 @@ export default class Main {
     this.squares = []
     this.initSquares()
     this.isLooping = true
-    new SwipeListener(
+    this.initListener()
+    if (this.isLooping){
+      this.render()
+      this.resetActive()
+    }
+  }
+
+  initListener() {
+    this.touchListener = new SwipeListener(
       this.swipeUp.bind(this),
       this.swipeDown.bind(this),
       this.swipeLeft.bind(this),
       this.swipeRight.bind(this),
       this.touch.bind(this)
     )
-    if (this.isLooping){
-      this.render()
-      this.resetActive()
-    }
+    this.touchListener.start()
   }
   
   resetActive() {
@@ -92,6 +97,7 @@ export default class Main {
    * game over
    */
   gameOver() {
+    this.touchListener.stop()
     var that = this
     this.isLooping = false
     console.log("lose")
