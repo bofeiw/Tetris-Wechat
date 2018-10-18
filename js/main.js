@@ -27,7 +27,8 @@ const colors = {
   green: 'rgba(0, 255, 0, 1)',
   blue: 'rgba(0, 0, 255, 1)',
   yellow: 'rgba(255, 255, 0, 1)',
-  purple: 'rgba(255, 0, 255, 1)',
+  pink: 'rgba(255, 0, 255, 1)',
+  purple: 'rgba(153, 0, 255, 1)',
   cyan: 'rgba(0, 255, 255, 1)',
   none: 'rgba(45, 45, 45, 1)',  // dark grey
   tip: 'rgba(100, 100, 100, 1)',  // grey
@@ -35,6 +36,16 @@ const colors = {
   square: 'rgba(245, 245, 245, 1)',  // white
   space: 'rgba(25, 25, 25, 1)'  // slightly lighter than bg
 }
+
+const shapes = [
+  { pos: [[-1, 0], [0, -1], [0, 1]], color: colors.red, rotate: 4 }, // _ | _
+  { pos: [[-1, 0], [0, -1], [-1, 1]], color: colors.green, rotate: 2 }, // _ | -
+  { pos: [[-1, 0], [-1, -1], [0, 1]], color: colors.blue, rotate: 2 }, //-| _
+  { pos: [[-1, 0], [-1, 1], [0, 1]], color: colors.yellow, rotate: 1 }, // ::
+  { pos: [[-1, 0], [-2, 0], [1, 0]], color: colors.pink, rotate: 2 }, // |
+  { pos: [[-1, -1], [0, -1], [0, 1]], color: colors.cyan, rotate: 4 }, // | __
+  { pos: [[-1, 1], [0, -1], [0, 1]], color: colors.purple, rotate: 4 } // --|
+]
 
 const ctx = canvas.getContext('2d')
 
@@ -66,7 +77,9 @@ export default class Main {
   resetActive() {
     clearInterval(this.intervalID)
     this.activeX = Math.floor(xNum / 2)
-    this.activeY = 0
+    this.activeY = -2
+    this.shape = shapes[Math.floor(Math.random() * shapes.length)]
+    this.shape = shapes[4]
     this.addActive()
     this.render()
     if (this.shouldStop()) {
@@ -186,12 +199,26 @@ export default class Main {
    */
   validPosition(x, y){
     // validate it is in screen
-    if (! (0 <= x && x < xNum && 0 <= y && y < yNum)){
+    if (! (0 <= x && x < xNum && y < yNum)){
       return false
     }
+    for (let i = 0; i < this.shape.pos.length; i++) {
+      let xCurr = this.shape.pos[i][1] + this.activeX
+      let yCurr = this.shape.pos[i][0] + this.activeY
+      if (!(0 <= xCurr && xCurr < xNum && yCurr < yNum)) {
+        return false
+      }
+    }
     // validate square occupation
-    if (this.squares[y][x].color != colors.none){
+    if (y >= 0 && this.squares[y][x].color == colors.square){
       return false
+    }
+    for (let i = 0; i < this.shape.pos.length; i++) {
+      let xCurr = this.shape.pos[i][1] + this.activeX
+      let yCurr = this.shape.pos[i][0] + this.activeY
+      if (yCurr >= 0 && this.squares[yCurr][xCurr].color == colors.square) {
+        return false
+      }
     }
     return true
   }
@@ -219,21 +246,39 @@ export default class Main {
    * add active square to squares
    */
   addActive() {
-    this.squares[this.activeY][this.activeX].color = this.activeColor
+    this.setActiveColor(this.shape.color)
   }
 
   /**
    * remove active square from squares
    */
   clearActive() {
-    this.squares[this.activeY][this.activeX].color = colors.none
+    this.setActiveColor(colors.none)
   }
 
   /**
    * commit active square into squares
    */
   commitActive() {
-    this.squares[this.activeY][this.activeX].color = colors.square
+    this.setActiveColor(colors.square)
+  }
+
+  /**
+   * change all active squares to color
+   */
+  setActiveColor(color) {
+    // set center square
+    if (this.activeY >= 0) {
+      this.squares[this.activeY][this.activeX].color = color
+    }
+    // set shape square
+    for (let i = 0; i < this.shape.pos.length; i++) {
+      let xCurr = this.shape.pos[i][1] + this.activeX
+      let yCurr = this.shape.pos[i][0] + this.activeY
+      if (yCurr >= 0) {
+        this.squares[yCurr][xCurr].color = color
+      }
+    }
   }
 
   initSquares(){
