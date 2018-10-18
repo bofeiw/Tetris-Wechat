@@ -185,6 +185,7 @@ export default class Main {
   stop(){
     this.commitActive()
     this.resetActive()
+    this.clearFullLines()
   }
 
   /**
@@ -209,6 +210,35 @@ export default class Main {
     }
     if (this.shouldStop()){
       this.stop()
+    }
+  }
+
+  /**
+   * clear all full lines
+   */
+  clearFullLines(){
+    for (let y = yNum - 1; y >= 0; y--){
+      let full = true
+      for (let x = 0; x < xNum; x++){
+        if (this.squares[y][x].color == colors.none){
+          full = false
+          break
+        }
+      }
+      if (full){
+        // clear
+        for (let xMove = 0; xMove < xNum; xMove++) {
+          this.squares[y][xMove].color = colors.none
+        }
+        // move remaining lines down
+        for (let yMove = y - 1; yMove >= 0; yMove--){
+          for (let xMove = 0; xMove < xNum; xMove++){
+            this.squares[yMove + 1][xMove].color = this.squares[yMove][xMove].color 
+            this.squares[yMove][xMove].color = colors.none
+          }
+        }
+        y++
+      }
     }
   }
 

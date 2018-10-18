@@ -28,7 +28,7 @@ export default class SwipeListener {
       t.yt = e.changedTouches[0].clientY
       t.endId = e.changedTouches[0].identifier
       /*判断并回调*/
-      t._call()
+      // t._call()
     })
     /*获取结束坐标和id*/
     wx.onTouchEnd(function (e) {
