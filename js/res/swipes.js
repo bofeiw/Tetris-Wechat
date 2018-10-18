@@ -5,6 +5,7 @@
  */
 
 export default class SwipeListener {
+  /*初始化回调函数*/
   constructor(callbackUp, callbackDown, callbackLeft, callbackRight, callbackTouch) {
     this.callbackUp = callbackUp
     this.callbackDown = callbackDown
@@ -17,6 +18,14 @@ export default class SwipeListener {
       t.x0 = e.changedTouches[0].clientX
       t.y0 = e.changedTouches[0].clientY
       t.startId = e.changedTouches[0].identifier
+    })
+    /*监听移动*/
+    wx.onTouchMove(function (e) {
+      t.xt = e.changedTouches[0].clientX
+      t.yt = e.changedTouches[0].clientY
+      t.endId = e.changedTouches[0].identifier
+      /*判断并回调*/
+      t._call()
     })
     /*获取结束坐标和id*/
     wx.onTouchEnd(function (e) {

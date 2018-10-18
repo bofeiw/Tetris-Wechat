@@ -79,7 +79,6 @@ export default class Main {
     this.activeX = Math.floor(xNum / 2)
     this.activeY = -2
     this.shape = shapes[Math.floor(Math.random() * shapes.length)]
-    this.shape = shapes[4]
     this.addActive()
     this.render()
     if (this.shouldStop()) {
@@ -203,8 +202,8 @@ export default class Main {
       return false
     }
     for (let i = 0; i < this.shape.pos.length; i++) {
-      let xCurr = this.shape.pos[i][1] + this.activeX
-      let yCurr = this.shape.pos[i][0] + this.activeY
+      let xCurr = this.shape.pos[i][1] + x
+      let yCurr = this.shape.pos[i][0] + y
       if (!(0 <= xCurr && xCurr < xNum && yCurr < yNum)) {
         return false
       }
@@ -214,8 +213,8 @@ export default class Main {
       return false
     }
     for (let i = 0; i < this.shape.pos.length; i++) {
-      let xCurr = this.shape.pos[i][1] + this.activeX
-      let yCurr = this.shape.pos[i][0] + this.activeY
+      let xCurr = this.shape.pos[i][1] + x
+      let yCurr = this.shape.pos[i][0] + y
       if (yCurr >= 0 && this.squares[yCurr][xCurr].color == colors.square) {
         return false
       }
