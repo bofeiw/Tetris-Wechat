@@ -87,7 +87,7 @@ export default class Main {
     this.shape = JSON.parse(JSON.stringify(this.shapeOrigin))
     this.addActive()
     this.render()
-    if (this.shouldStop()) {
+    if (!this.validPosition(this.activeX, 0 , this.shape)) {
       this.gameOver()
       return
     }
@@ -162,7 +162,14 @@ export default class Main {
       newPos[i][0] = this.shape.pos[i][1]
       newPos[i][1] = -this.shape.pos[i][0]
     }
-    this.shape.pos = newPos
+    if (this.validPosition(this.activeX, this.activeY, newPos)) {
+      this.clearActive()
+      this.shape.pos = newPos
+      this.addActive()
+      if (this.shouldStop()){
+        this.stop()
+      }
+    }
   }
 
   /**
@@ -184,7 +191,7 @@ export default class Main {
    * return whether should stop
    */
   shouldStop() {
-    return !this.validPosition(this.activeX, this.activeY + 1, this.shape)
+    return !this.validPosition(this.activeX, this.activeY + 1, this.shape.pos)
   }
 
   /**
@@ -193,7 +200,7 @@ export default class Main {
   move(x, y) {
     var newX = this.activeX + x
     var newY = this.activeY + y
-    if (this.validPosition(newX, newY, this.shape)) {
+    if (this.validPosition(newX, newY, this.shape.pos)) {
       this.clearActive()
       this.activeX = newX
       this.activeY = newY
@@ -208,14 +215,14 @@ export default class Main {
   /**
    * validate position with active shape
    */
-  validPosition(x, y, shape){
+  validPosition(x, y, pos){
     // validate it is in screen
     if (! (0 <= x && x < xNum && y < yNum)){
       return false
     }
-    for (let i = 0; i < shape.pos.length; i++) {
-      let xCurr = shape.pos[i][1] + x
-      let yCurr = shape.pos[i][0] + y
+    for (let i = 0; i < pos.length; i++) {
+      let xCurr = pos[i][1] + x
+      let yCurr = pos[i][0] + y
       if (!(0 <= xCurr && xCurr < xNum && yCurr < yNum)) {
         return false
       }
@@ -224,9 +231,9 @@ export default class Main {
     if (y >= 0 && this.squares[y][x].color == colors.square){
       return false
     }
-    for (let i = 0; i < shape.pos.length; i++) {
-      let xCurr = shape.pos[i][1] + x
-      let yCurr = shape.pos[i][0] + y
+    for (let i = 0; i < pos.length; i++) {
+      let xCurr = pos[i][1] + x
+      let yCurr = pos[i][0] + y
       if (yCurr >= 0 && this.squares[yCurr][xCurr].color == colors.square) {
         return false
       }
