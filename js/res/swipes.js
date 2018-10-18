@@ -28,7 +28,7 @@ export default class SwipeListener {
       t.yt = e.changedTouches[0].clientY
       t.endId = e.changedTouches[0].identifier
       /*判断并回调*/
-      // t._call()
+      t._call(false)
     })
     /*获取结束坐标和id*/
     wx.onTouchEnd(function (e) {
@@ -36,7 +36,7 @@ export default class SwipeListener {
       t.yt = e.changedTouches[0].clientY
       t.endId = e.changedTouches[0].identifier
       /*判断并回调*/
-      t._call()
+      t._call(true)
     })
   }
 
@@ -46,7 +46,7 @@ export default class SwipeListener {
     wx.offTouchEnd()
   }
 
-  _call() {
+  _call(isEnd) {
     /* 判断是否为同一次触摸，若不是则直接忽略*/
     if (this.endId === this.startId) {
       let w = this.xt - this.x0
@@ -54,13 +54,13 @@ export default class SwipeListener {
       let k = h / w
       /*不使用1判断斜率，而留有余量，防止误触*/
       if (k > 2 || k < -2) {
-        /*滑动20px以上激活，防止误触*/
-        if (h < -20) this.callbackUp() /*向上*/
-        if (h > 20) this.callbackDown() /*向下*/
+        /*滑动50px以上激活，防止误触*/
+        if (h < -50) this.callbackUp() /*向上*/
+        if (h > 50) this.callbackDown() /*向下*/
       } else if (k < 0.5 && k > -0.5) {
-        if (w < -20) this.callbackLeft() /*向左*/
-        if (w > 20) this.callbackRight() /*向右*/
-      } else {
+        if (w < -50) this.callbackLeft() /*向左*/
+        if (w > 50) this.callbackRight() /*向右*/
+      } else if (isEnd) {
         this.callbackTouch() /*touch*/
       }
     }

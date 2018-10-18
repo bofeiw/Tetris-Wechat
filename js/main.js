@@ -9,16 +9,12 @@ const squareSize = spaceSize * spaceSquareRatio // square size
 const squareHeightSum = getSaureHeightSum() // sum height in y
 const offsetY = getOffsetY()  // center the squares
 
-const time_drop = 0.8  // period to force drop
-const time_drop_adjust = 0.99 // every score up, decrease drop time by this factor
-const time_stop = 0.5 // time player can adjust pos at bottom
-const time_move = 0.05 // minimum time interval to move
-const time_rotate = 0.2 // minimum time interval to rotate
-const time_to_quick = 0.15 // time interval to activate quick move mode
-const time_before_drop = 0.3 // time to wait from one stop to drop
-const time_quick_drop = 0.01 // minimum time interval to drop in quick mode
-const time_move_quick = 0.015 // minimum time interval to move in quick mode
-const time_to_straight_drop = 0.3 // time to do another down straight
+const timeDropInit = 600 // period to force drop
+const timeDropAdjustFactor = 0.99 // every score up, decrease drop time by this factor
+const timeBeforeStop = 50 // time player can adjust pos at bottom
+const timeMove = 100 // minimum time interval to move
+const timeDrop = 50 // minimum time interval to move
+const timeRotate = 500 // minimum time interval to rotate
 
 const colors = {
   black: 'rgba(0, 0, 0, 1)',
@@ -61,6 +57,10 @@ export default class Main {
     this.squares = []
     this.initSquares()
     this.isLooping = true
+    this.timeDrop = timeDropInit
+    this.timeLastDrop = Date.now()
+    this.timeLastMove = Date.now()
+    this.timeLastRotate = Date.now()
     this.initListener()
     if (this.isLooping){
       this.render()
@@ -122,7 +122,10 @@ export default class Main {
    * swipe down
    */
   swipeDown(){
-    this.down()
+    if (Date.now() - this.timeLastDrop > timeDrop){
+      this.down()
+      this.timeLastDrop = Date.now()
+    }
   }
 
   /**
@@ -135,22 +138,31 @@ export default class Main {
   /**
    * swipe left
    */
-  swipeLeft(){
-    this.move(-1, 0)
+  swipeLeft() {
+    if (Date.now() - this.timeLastMove > timeMove) {
+      this.move(-1, 0)
+      this.timeLastMove = Date.now()
+    }
   }
 
   /**
    * swipe right
    */
-  swipeRight(){
-    this.move(1, 0)
+  swipeRight() {
+    if (Date.now() - this.timeLastMove > timeMove) {
+      this.move(1, 0)
+      this.timeLastMove = Date.now()
+    }
   }
 
   /**
    * touch
    */
-  touch(){
-    this.rotate()
+  touch() {
+    if (Date.now() - this.timeLastRotate > timeRotate) {
+      this.rotate()
+      this.timeLastRotate = Date.now()
+    }
   }
 
   /**
