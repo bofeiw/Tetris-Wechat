@@ -68,7 +68,6 @@ export default class Main {
   start() {
     this.initSquares()
     this.isLooping = true
-    this.rotateCount = 1
     this.timeDrop = timeDropInit
     this.timeLastDrop = Date.now()
     this.timeLastMove = Date.now()
@@ -92,6 +91,7 @@ export default class Main {
   }
   
   resetActive() {
+    this.rotateCount = 1
     clearInterval(this.intervalID)
     this.activeX = Math.floor(xNum / 2)
     this.activeY = -2
@@ -171,6 +171,7 @@ export default class Main {
    * touch
    */
   touch() {
+    console.log("touch")
     if (Date.now() - this.timeLastRotate > timeRotate) {
       this.rotate()
       this.timeLastRotate = Date.now()
@@ -181,17 +182,20 @@ export default class Main {
    * rotate
    */
   rotate(){
+    console.log("rotate")
     var newPos = JSON.parse(JSON.stringify(this.shape)).pos
     if (++this.rotateCount > this.shape.rotate){
       // rotation exceed limit, roll back to origin
       newPos = JSON.parse(JSON.stringify(this.shapeOrigin)).pos
       this.rotateCount = 1
+      console.log("rotate reset")
     } else {
       // rotate as normal
       for (let i = 0; i < newPos.length; i++){
         newPos[i][0] = this.shape.pos[i][1]
         newPos[i][1] = -this.shape.pos[i][0]
       }
+      console.log("rotate normal")
     }
     // validate and apply
     if (this.validPosition(this.activeX, this.activeY, newPos)) {
@@ -311,6 +315,7 @@ export default class Main {
   render() {
     this.fillBackground()
     this.renderSquares()
+    this.renderScore()
   }
 
   /**
@@ -322,6 +327,19 @@ export default class Main {
         this.squares[y][x].render(ctx)
       }
     }
+  }
+
+  /**
+   * render score at upper left
+   */
+  renderScore(){
+    let text = 'Score: ' + this.lineCleard
+    ctx.font = '25px Sans-serif';
+    ctx.strokeStyle = colors.white;
+    ctx.fillStyle = colors.black;
+    ctx.lineWidth = 2;
+    ctx.strokeText(text, 15, 35);
+    ctx.fillText(text, 15, 35);
   }
 
   /**
