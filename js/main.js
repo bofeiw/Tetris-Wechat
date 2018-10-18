@@ -83,7 +83,8 @@ export default class Main {
     clearInterval(this.intervalID)
     this.activeX = Math.floor(xNum / 2)
     this.activeY = -2
-    this.shape = shapes[Math.floor(Math.random() * shapes.length)]
+    this.shapeOrigin = JSON.parse(JSON.stringify(shapes[Math.floor(Math.random() * shapes.length)]))
+    this.shape = JSON.parse(JSON.stringify(this.shapeOrigin))
     this.addActive()
     this.render()
     if (this.shouldStop()) {
@@ -156,7 +157,12 @@ export default class Main {
    * rotate
    */
   rotate(){
-
+    var newPos = JSON.parse(JSON.stringify(this.shape)).pos
+    for (let i = 0; i < newPos.length; i++){
+      newPos[i][0] = this.shape.pos[i][1]
+      newPos[i][1] = -this.shape.pos[i][0]
+    }
+    this.shape.pos = newPos
   }
 
   /**
@@ -178,7 +184,7 @@ export default class Main {
    * return whether should stop
    */
   shouldStop() {
-    return !this.validPosition(this.activeX, this.activeY + 1)
+    return !this.validPosition(this.activeX, this.activeY + 1, this.shape)
   }
 
   /**
@@ -187,7 +193,7 @@ export default class Main {
   move(x, y) {
     var newX = this.activeX + x
     var newY = this.activeY + y
-    if (this.validPosition(newX, newY)) {
+    if (this.validPosition(newX, newY, this.shape)) {
       this.clearActive()
       this.activeX = newX
       this.activeY = newY
@@ -202,14 +208,14 @@ export default class Main {
   /**
    * validate position with active shape
    */
-  validPosition(x, y){
+  validPosition(x, y, shape){
     // validate it is in screen
     if (! (0 <= x && x < xNum && y < yNum)){
       return false
     }
-    for (let i = 0; i < this.shape.pos.length; i++) {
-      let xCurr = this.shape.pos[i][1] + x
-      let yCurr = this.shape.pos[i][0] + y
+    for (let i = 0; i < shape.pos.length; i++) {
+      let xCurr = shape.pos[i][1] + x
+      let yCurr = shape.pos[i][0] + y
       if (!(0 <= xCurr && xCurr < xNum && yCurr < yNum)) {
         return false
       }
@@ -218,9 +224,9 @@ export default class Main {
     if (y >= 0 && this.squares[y][x].color == colors.square){
       return false
     }
-    for (let i = 0; i < this.shape.pos.length; i++) {
-      let xCurr = this.shape.pos[i][1] + x
-      let yCurr = this.shape.pos[i][0] + y
+    for (let i = 0; i < shape.pos.length; i++) {
+      let xCurr = shape.pos[i][1] + x
+      let yCurr = shape.pos[i][0] + y
       if (yCurr >= 0 && this.squares[yCurr][xCurr].color == colors.square) {
         return false
       }
