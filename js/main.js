@@ -1,8 +1,8 @@
 import Square from './res/square'
 import SwipeListener from './res/swipes'
 
-const xNum = 9 // number of squares in x
-const yNum = 16 // number of squares in y
+const xNum = 12 // number of squares in x
+const yNum = 21 // number of squares in y
 const spaceSquareRatio = 8 // ratio for size of space and square
 const spaceSize = getSpaceSize()  // space size
 const squareSize = spaceSize * spaceSquareRatio // square size
@@ -15,8 +15,8 @@ const offsetY = getOffsetY()  // center the squares
 const timeDropInit = 600 // period to force drop
 const timeDropAdjustFactor = 0.99 // every score up, decrease drop time by this factor
 const timeBeforeStop = 50 // time player can adjust pos at bottom
-const timeMove = 100 // minimum time interval to move
-const timeDrop = 50 // minimum time interval to move
+const timeMove = 200 // minimum time interval to move
+const timeDrop = 30 // minimum time interval to move
 const timeRotate = 1 // minimum time interval to rotate
 
 /**
@@ -62,10 +62,10 @@ const ctx = canvas.getContext('2d')
  */
 export default class Main {
   constructor() {
-    this.lineCleard = 0
   }
 
   start() {
+    this.lineCleard = 0
     this.initSquares()
     this.isLooping = true
     this.timeDrop = timeDropInit
@@ -263,6 +263,7 @@ export default class Main {
         }
       }
       if (full) {
+        this.timeDrop *= timeDropAdjustFactor
         ++this.lineCleard
         // clear
         for (let xMove = 0; xMove < xNum; xMove++) {

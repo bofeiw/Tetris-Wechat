@@ -56,13 +56,13 @@ export default class SwipeListener {
       /*不使用1判断斜率，而留有余量，防止误触*/
       if (k > 2 || k < -2) {
         this.isMoved = true
-        /*滑动40px以上激活，防止误触*/
-        if (h < -40) this.callbackUp() /*向上*/
-        if (h > 40) this.callbackDown() /*向下*/
+        /*滑动30px以上激活，防止误触*/
+        if (h < -30) this.callbackUp() /*向上*/
+        if (h > 30) this.callbackDown() /*向下*/
       } else if (k < 0.5 && k > -0.5) {
         this.isMoved = true
-        if (w < -40) this.callbackLeft() /*向左*/
-        if (w > 40) this.callbackRight() /*向右*/
+        if (w < -30) this.callbackLeft() /*向左*/
+        if (w > 30) this.callbackRight() /*向右*/
       } else if (isEnd && !this.isMoved) {
         this.callbackTouch() /*touch*/
       }
